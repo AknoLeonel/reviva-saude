@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google"; // Importando as fontes
-import "./globals.css";
+import "/Aknol/AknoTech/Projetos/Revivabsb/reviva-saude/app/globals.css"; // Importando o CSS global
 
 // Fonte para textos corridos (leitura fácil)
 const inter = Inter({ 

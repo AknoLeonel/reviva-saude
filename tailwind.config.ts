@@ -2,10 +2,10 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",        // Removido o src/
-    "./components/**/*.{js,ts,jsx,tsx,mdx}", // Removido o src/
-    "./data/**/*.{js,ts,jsx,tsx,mdx}",       // Adicionado data/
-  ],
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",        // Procura na pasta app/
+    "./components/**/*.{js,ts,jsx,tsx,mdx}", // Procura na pasta components/
+    "./data/**/*.{js,ts,jsx,tsx,mdx}",       // Procura na pasta data/
+    ],
   theme: {
     extend: {
       colors: {
