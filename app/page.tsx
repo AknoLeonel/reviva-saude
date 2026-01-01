@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, MapPin, Instagram, Menu, X, CheckCircle, ChevronRight, Sparkles, ChevronDown } from "lucide-react";
+import { Phone, MapPin, Instagram, Menu, X, ChevronRight, Sparkles, ChevronDown, ChevronLeft } from "lucide-react";
 
 // --- CATEGORIAS (Organizadas para facilitar a busca) ---
 const categories = [
@@ -14,7 +14,7 @@ const categories = [
 
 // --- LISTA COMPLETA DE SERVIÇOS ---
 const services = [
-  // --- ESTÉTICA FACIAL (Toxina, Preenchimento, Fios, Skinbooster, Limpeza) ---
+  // --- ESTÉTICA FACIAL ---
   { category: 'facial', title: 'Toxina Botulínica Full Face + Platisma (Nefertite)', price: 'R$ 2.200,00', desc: 'Face completa e pescoço.' },
   { category: 'facial', title: 'Toxina Botulínica Full Face', price: 'R$ 1.500,00', desc: 'Tratamento completo para rugas faciais.' },
   { category: 'facial', title: 'Toxina Botulínica Terço Superior', price: 'R$ 900,00', desc: 'Testa, glabela e olhos.' },
@@ -107,7 +107,21 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   
+  // 1. REF PARA O CARROSSEL
+  const carouselRef = useRef<HTMLDivElement>(null);
+  
   const whatsappLink = "https://wa.me/556132425394?text=Ol%C3%A1%2C%20vi%20o%20site%20da%20Reviva%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio!";
+
+  // 2. FUNÇÃO DE SCROLL (Move 350px para o lado)
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = 350; 
+      carouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-reviva-cream text-reviva-dark font-sans overflow-hidden">
@@ -287,20 +301,24 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- MENU DE SERVIÇOS --- */}
+        {/* --- MENU DE SERVIÇOS (CARROSSEL) --- */}
         <section id="servicos" className="py-32 bg-reviva-light/50 relative">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16 max-w-3xl mx-auto">
+          <div className="max-w-7xl mx-auto px-6 relative">
+            <div className="text-center mb-12 max-w-3xl mx-auto">
               <h2 className="text-4xl md:text-5xl font-serif mb-6 text-reviva-dark">Menu de Tratamentos</h2>
               <p className="text-gray-600">Explore nossa seleção completa de procedimentos.</p>
             </div>
 
             {/* Abas de Categorias */}
-            <div className="flex flex-wrap justify-center gap-4 mb-16">
+            <div className="flex flex-wrap justify-center gap-4 mb-12">
               {categories.map((cat) => (
                 <button
                   key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
+                  onClick={() => {
+                    setActiveCategory(cat.id);
+                    // Resetar scroll para o inicio ao trocar
+                    if (carouselRef.current) carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                  }}
                   className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
                     activeCategory === cat.id 
                       ? "bg-reviva-gold text-white shadow-lg scale-105" 
@@ -312,42 +330,78 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Grid de Serviços */}
-            <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence mode="popLayout">
-                {services
-                  .filter((s) => s.category === activeCategory)
-                  .map((service, index) => (
-                  <motion.div 
-                    layout
-                    key={service.title + index}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="group bg-white p-6 rounded-3xl shadow-sm border border-transparent hover:border-reviva-gold/30 hover:shadow-xl transition-all duration-500 relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <Sparkles size={40} className="text-reviva-gold" />
-                    </div>
-                    <div className="relative z-10 flex flex-col h-full justify-between">
-                      <div>
-                        <h3 className="font-serif text-xl text-reviva-dark group-hover:text-reviva-gold transition-colors mb-2">{service.title}</h3>
-                        <p className="text-gray-500 font-light text-sm mb-4">{service.desc}</p>
-                      </div>
-                      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                        <span className="text-reviva-goldDark font-bold text-lg">
-                          {service.price}
-                        </span>
-                        <a href={whatsappLink} className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-reviva-gold transition-colors">
-                          Agendar
-                        </a>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            {/* Container do Carrossel com Botões */}
+            <div className="relative group/carousel">
+                {/* Botão Esquerda */}
+                <button 
+                  onClick={() => scrollCarousel('left')}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-reviva-dark hover:bg-reviva-gold hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+
+                {/* Carrossel Scrollável */}
+                <div 
+                  ref={carouselRef}
+                  className="flex gap-6 overflow-x-auto pb-8 pt-4 px-2 snap-x snap-mandatory scrollbar-hide"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  <AnimatePresence mode="popLayout">
+                    {services
+                      .filter((s) => s.category === activeCategory)
+                      .map((service, index) => (
+                      <motion.div 
+                        layout
+                        key={service.title + index}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        // Largura fixa para garantir o layout horizontal
+                        className="flex-shrink-0 w-[85vw] sm:w-[350px] snap-center"
+                      >
+                        <div className="h-full bg-white p-6 rounded-3xl shadow-sm border border-transparent hover:border-reviva-gold/30 hover:shadow-xl transition-all duration-500 relative overflow-hidden flex flex-col justify-between">
+                          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Sparkles size={40} className="text-reviva-gold" />
+                          </div>
+                          
+                          <div className="relative z-10">
+                            <h3 className="font-serif text-xl text-reviva-dark hover:text-reviva-gold transition-colors mb-2 line-clamp-2 min-h-[3.5rem]">
+                              {service.title}
+                            </h3>
+                            <p className="text-gray-500 font-light text-sm mb-4 line-clamp-3 min-h-[3.75rem]">
+                              {service.desc}
+                            </p>
+                          </div>
+                          
+                          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 relative z-10">
+                            <span className="text-reviva-goldDark font-bold text-lg">
+                              {service.price}
+                            </span>
+                            <a href={whatsappLink} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-reviva-gold transition-colors">
+                              Agendar
+                            </a>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+
+                {/* Botão Direita */}
+                <button 
+                  onClick={() => scrollCarousel('right')}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-reviva-dark hover:bg-reviva-gold hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
+                >
+                  <ChevronRight size={24} />
+                </button>
+            </div>
+            
+            {/* Indicador Mobile */}
+            <div className="flex md:hidden justify-center mt-2 text-gray-400 text-xs gap-2 items-center animate-pulse">
+               <ChevronLeft size={14} /> Deslize para ver mais <ChevronRight size={14} />
+            </div>
+
           </div>
         </section>
 
