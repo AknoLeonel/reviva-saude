@@ -126,7 +126,8 @@ export default function Home() {
   const yHero = useTransform(scrollY, [0, 500], [0, 150]);
   const opacityHero = useTransform(scrollY, [0, 300], [1, 0]);
   
-  const whatsappLink = "https://wa.me/556132425394?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20Reviva!";
+  const whatsappLink = "https://clini.site/reviva?modal-action=booking-form";
+  const agendarLink = "https://wa.me/556132425394?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20Reviva!";
 
   const handleScroll = () => {
     if (carouselRef.current) {
@@ -545,7 +546,7 @@ export default function Home() {
                 <a href="https://instagram.com/reviva.bsb" target="_blank" className="hover:text-reviva-gold transition-colors flex items-center gap-2 group">
                   <Instagram size={16} /> Instagram
                 </a>
-                <a href={whatsappLink} target="_blank" className="hover:text-reviva-gold transition-colors flex items-center gap-2 group">
+                <a href={agendarLink} target="_blank" className="hover:text-reviva-gold transition-colors flex items-center gap-2 group">
                   <Phone size={16} /> WhatsApp
                 </a>
               </div>
