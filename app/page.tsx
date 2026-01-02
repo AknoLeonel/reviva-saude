@@ -1,350 +1,404 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Phone, MapPin, Instagram, Menu, X, ChevronRight, Sparkles, ChevronDown, ChevronLeft } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
+import { Phone, MapPin, Instagram, Menu, X, ChevronRight, Sparkles, ChevronDown, ChevronLeft, Star, ArrowUpRight, Clock, User } from "lucide-react";
 
-// --- CATEGORIAS (Organizadas para facilitar a busca) ---
+// --- DADOS REAIS DA REVIVA ---
+
+// 1. Categorias (Mapeadas do seu texto)
 const categories = [
-  { id: 'facial', name: 'Estética Facial' },
-  { id: 'corporal', name: 'Corporal & Capilar' },
+  { id: 'facial', name: 'Facial' },
+  { id: 'corporal', name: 'Corporal' },
   { id: 'beleza', name: 'Beleza & Cílios' },
+  { id: 'dermopig', name: 'Dermopigmentação' },
   { id: 'otomodelacao', name: 'Otomodelação' },
 ];
 
-// --- LISTA COMPLETA DE SERVIÇOS ---
+// 2. Lista Completa de Serviços (Preços e Tempos Reais)
 const services = [
-  // --- ESTÉTICA FACIAL ---
-  { category: 'facial', title: 'Toxina Botulínica Full Face + Platisma (Nefertite)', price: 'R$ 2.200,00', desc: 'Face completa e pescoço.' },
-  { category: 'facial', title: 'Toxina Botulínica Full Face', price: 'R$ 1.500,00', desc: 'Tratamento completo para rugas faciais.' },
-  { category: 'facial', title: 'Toxina Botulínica Terço Superior', price: 'R$ 900,00', desc: 'Testa, glabela e olhos.' },
-  { category: 'facial', title: 'Toxina Botulínica Terço Sup. + Nefertite', price: 'R$ 1.500,00', desc: 'Terço superior e pescoço.' },
-  { category: 'facial', title: 'Mesotox', price: 'R$ 800,00', desc: 'Toxina botulínica para qualidade da pele.' },
-  { category: 'facial', title: 'Toxina por Unidade', price: 'R$ 30,00', desc: 'Aplicação pontual.' },
-  
-  { category: 'facial', title: 'Preenchimento Ácido Hialurônico (1ml)', price: 'R$ 899,00', desc: 'Volume e contorno natural.' },
-  { category: 'facial', title: 'Revitalização Facial AH (2ml)', price: 'R$ 200,00', desc: 'Hidratação profunda não reticulada.' },
-  { category: 'facial', title: 'Emagrecimento Facial', price: 'R$ 600,00', desc: 'Redução de medidas na face.' },
-  
-  { category: 'facial', title: 'Bioestimulador Sculptra (Galderma)', price: 'R$ 2.200,00', desc: 'Estímulo potente de colágeno.' },
-  { category: 'facial', title: 'Bioestimulador Elleva (Rennova)', price: 'R$ 1.800,00', desc: '210 mg.' },
-  { category: 'facial', title: 'Bioestimulador Diamond (Rennova)', price: 'R$ 1.800,00', desc: 'Hidroxiapatita de Cálcio.' },
-  { category: 'facial', title: 'Bioestimulador Radiesse (Merz)', price: 'R$ 1.800,00', desc: '1,5 ml.' },
-  { category: 'facial', title: 'Evo PDRN', price: 'R$ 1.200,00', desc: 'Regeneração celular avançada.' },
-  
-  { category: 'facial', title: 'Fios Filler 21G (4 unid)', price: 'R$ 1.400,00', desc: 'Preenchimento e sustentação.' },
-  { category: 'facial', title: 'Fios Liso Agulhado 29G (10 unid)', price: 'R$ 1.200,00', desc: 'Estímulo de colágeno.' },
-  { category: 'facial', title: 'Fios Espiculado 19G (unid)', price: 'R$ 320,00', desc: 'Tração e lifting.' },
-  { category: 'facial', title: 'Fios Parafuso 27G (unid)', price: 'R$ 150,00', desc: 'Volumização pontual.' },
-  
-  { category: 'facial', title: 'Skinbooster Face', price: 'R$ 600,00', desc: 'Hidratação injetável profunda.' },
-  { category: 'facial', title: 'Skinbooster Pescoço', price: 'R$ 300,00', desc: 'Rejuvenescimento do pescoço.' },
-  { category: 'facial', title: 'Skinbooster Colo', price: 'R$ 450,00', desc: 'Tratamento para o colo.' },
-  { category: 'facial', title: 'Skinbooster Mãos', price: 'R$ 300,00', desc: 'Hidratação e rejuvenescimento das mãos.' },
-  { category: 'facial', title: 'Skinbooster 4 Regiões', price: 'R$ 1.200,00', desc: 'Combo completo de hidratação.' },
-  
-  { category: 'facial', title: 'Limpeza de Pele Master', price: 'R$ 250,00', desc: 'Vapor de ozônio, ultrassom e fotomodulação.' },
-  { category: 'facial', title: 'Limpeza de Pele com Vapor', price: 'R$ 180,00', desc: 'Limpeza profunda clássica.' },
-  { category: 'facial', title: 'Limpeza Plus Dermo', price: 'R$ 120,00', desc: 'Manutenção da pele limpa.' },
-  { category: 'facial', title: 'Peeling Ácido Retinóico', price: 'R$ 99,00', desc: 'Valor promocional de campanha.' },
-  { category: 'facial', title: 'Peeling Ultrassônico', price: 'R$ 80,00', desc: 'Renovação celular suave.' },
-  { category: 'facial', title: 'Microagulhamento', price: 'R$ 300,00', desc: 'Indução percutânea de colágeno.' },
-  { category: 'facial', title: 'Protocolo Ultra Pré HOF', price: 'R$ 800,00', desc: 'Tratamento para manchas hipercrômicas.' },
-  { category: 'facial', title: 'Protocolo Revita Pré HOF', price: 'R$ 800,00', desc: 'Tratamento focado em acne.' },
-  { category: 'facial', title: 'Laser Vermelho / LED Azul', price: 'R$ 120,00', desc: 'Fototerapia.' },
-  { category: 'facial', title: 'Laser + Máscara Facial', price: 'R$ 240,00', desc: 'Sessão completa de fototerapia.' },
-  { category: 'facial', title: 'Máscara Argila Branca', price: 'R$ 120,00', desc: 'Clareamento e hidratação.' },
+  // --- FACIAL (Estética) ---
+  { category: 'facial', title: 'Toxina Botulínica Full Face + Platisma (Nefertite)', price: 'R$ 2.200,00', desc: 'Tratamento completo face e pescoço. Duração: 1h' },
+  { category: 'facial', title: 'Toxina Botulínica Full Face', price: 'R$ 1.500,00', desc: 'Tratamento completo para rugas. Duração: 1h' },
+  { category: 'facial', title: 'Toxina Botulínica Terço Superior', price: 'R$ 900,00', desc: 'Testa, glabela e olhos. Duração: 1h' },
+  { category: 'facial', title: 'Preenchimento Ácido Hialurônico (1ml)', price: 'R$ 899,00', desc: 'Volume e contorno. Duração: 1h' },
+  { category: 'facial', title: 'Bioestimulador Sculptra (Galderma)', price: 'R$ 2.200,00', desc: 'Estímulo de colágeno potente. Duração: 1h' },
+  { category: 'facial', title: 'Bioestimulador Elleva (Rennova)', price: 'R$ 1.800,00', desc: '210 mg. Duração: 1h' },
+  { category: 'facial', title: 'Bioestimulador Radiesse (Merz)', price: 'R$ 1.800,00', desc: '1,5 ml. Duração: 1h' },
+  { category: 'facial', title: 'Evo PDRN', price: 'R$ 1.200,00', desc: 'Regeneração celular. Duração: 1h' },
+  { category: 'facial', title: 'Fios Filler 21G (4 unid)', price: 'R$ 1.400,00', desc: 'Blister com 4 unidades. Duração: 1h' },
+  { category: 'facial', title: 'Fios Liso Agulhado (10 unid)', price: 'R$ 1.200,00', desc: '29G 38 mm. Duração: 1h' },
+  { category: 'facial', title: 'Fios Espiculado (Unid)', price: 'R$ 320,00', desc: '19G 100 mm. Duração: 1h 30 min' },
+  { category: 'facial', title: 'Revitalização Facial AH', price: 'R$ 200,00', desc: 'Não reticulado 1,2 mg - 2 ml. Duração: 1h' },
+  { category: 'facial', title: 'Skinbooster Face', price: 'R$ 600,00', desc: 'Hidratação profunda. Duração: 1h' },
+  { category: 'facial', title: 'Skinbooster 4 Regiões', price: 'R$ 1.200,00', desc: 'Face, pescoço, colo e mãos. Duração: 2h' },
+  { category: 'facial', title: 'Microagulhamento', price: 'R$ 300,00', desc: 'Indução de colágeno. Duração: 1h' },
+  { category: 'facial', title: 'Limpeza de Pele Master', price: 'R$ 250,00', desc: 'C/ vapor ozônio, ultrassônico e foto modulação. Duração: 2h' },
+  { category: 'facial', title: 'Limpeza de Pele (Vapor Ozônio)', price: 'R$ 180,00', desc: 'Limpeza profunda tradicional. Duração: 1h 40 min' },
+  { category: 'facial', title: 'Peeling Ácido Retinóico', price: 'R$ 150,00', desc: 'Campanha promocional: R$ 99,00. Duração: 1h' },
+  { category: 'facial', title: 'Emagrecimento Facial', price: 'R$ 600,00', desc: 'Redução de papada e contorno. Duração: 1h' },
+  { category: 'facial', title: 'Protocolo Revita Pré HOF (Acne)', price: 'R$ 800,00', desc: 'Tratamento focado em acne. Duração: 1h 30 min' },
 
-  // --- CORPORAL & CAPILAR ---
-  { category: 'corporal', title: 'Lipoquímica Enzimática (Sessão)', price: 'R$ 180,00', desc: 'Pacote c/ 10 sessões: R$ 1.200,00.' },
-  { category: 'corporal', title: 'Hiperidrose', price: 'R$ 2.500,00', desc: 'Axila, palma das mãos ou virilha.' },
-  { category: 'corporal', title: 'Ativador Metabólico', price: 'R$ 200,00', desc: 'Acelerador de metabolismo (30 min).' },
-  { category: 'corporal', title: 'Intradermoterapia Capilar', price: 'R$ 220,00', desc: 'Aplicação direta de ativos.' },
-  { category: 'corporal', title: 'Terapia Capilar (Sessão)', price: 'R$ 250,00', desc: 'Tratamento completo de 2h.' },
-  { category: 'corporal', title: 'Tratamento Capilar', price: 'R$ 200,00', desc: 'Cuidados essenciais para os fios.' },
-  { category: 'corporal', title: 'Camuflagem de Estrias', price: 'R$ 300,00', desc: 'Valor por área.' },
-  { category: 'corporal', title: 'Camuflagem de Cicatriz', price: 'R$ 200,00', desc: 'Avaliação necessária (A partir de R$ 300,00).' },
-  { category: 'corporal', title: 'Dermopigmentação de Areola', price: 'R$ 900,00', desc: 'Reconstrução estética.' },
+  // --- CORPORAL ---
+  { category: 'corporal', title: 'Lipoquímica Enzimática', price: 'R$ 180,00', desc: 'Sessão avulsa. Pacote c/ 10: R$ 1.200,00. Duração: 2h' },
+  { category: 'corporal', title: 'Hiperidrose', price: 'R$ 2.500,00', desc: 'Axila, palma das mãos ou virilha. Duração: 1h' },
+  { category: 'corporal', title: 'Camuflagem de Estrias', price: 'R$ 300,00', desc: 'Valor por área. Duração: 1h' },
+  { category: 'corporal', title: 'Camuflagem de Cicatriz', price: 'R$ 200,00', desc: 'A partir de R$ 300,00 (Avaliar). Duração: 1h' },
+  { category: 'corporal', title: 'Intradermoterapia Capilar', price: 'R$ 220,00', desc: 'Aplicação no couro cabeludo. Duração: 1h' },
+  { category: 'corporal', title: 'Terapia Capilar', price: 'R$ 250,00', desc: 'Sessão completa. Duração: 2h' },
+  { category: 'corporal', title: 'Ativador Metabólico', price: 'R$ 200,00', desc: 'Aplicação intramuscular. Duração: 30 min' },
 
   // --- BELEZA & CÍLIOS ---
-  { category: 'beleza', title: 'Design de Sobrancelhas', price: 'R$ 60,00', desc: 'Design personalizado.' },
-  { category: 'beleza', title: 'Design com Henna / Tintura', price: 'R$ 70,00', desc: 'Realce e definição.' },
-  { category: 'beleza', title: 'Micropigmentação Sobrancelhas', price: 'R$ 350,00', desc: 'Fio a fio ou shadow.' },
-  { category: 'beleza', title: 'Finalização na Cera', price: 'R$ 10,00', desc: 'Acabamento perfeito.' },
-  { category: 'beleza', title: 'Extensão de Cílios', price: 'R$ 250,00', desc: 'Volume e alongamento (3h).' },
-  { category: 'beleza', title: 'Micropigmentação Labial', price: 'R$ 350,00', desc: 'Efeito batom ou natural.' },
-  { category: 'beleza', title: 'Neutralização Labial', price: 'R$ 350,00', desc: 'Correção de cor (por sessão).' },
-  { category: 'beleza', title: 'SPA Labial', price: 'R$ 100,00', desc: 'Hidratação e esfoliação.' },
-  { category: 'beleza', title: 'Rejuvenescimento Labial', price: 'R$ 250,00', desc: 'Tratamento anti-age.' },
-  { category: 'beleza', title: 'Depilação Buço', price: 'R$ 15,00', desc: 'Remoção com cera.' },
-  { category: 'beleza', title: 'Depilação Face', price: 'R$ 20,00', desc: 'Remoção completa.' },
+  { category: 'beleza', title: 'Design de Sobrancelhas', price: 'R$ 60,00', desc: 'Design personalizado. Duração: 40 min' },
+  { category: 'beleza', title: 'Design com Henna / Tintura', price: 'R$ 70,00', desc: 'Realce do olhar. Duração: 1h' },
+  { category: 'beleza', title: 'Micropigmentação Sobrancelhas', price: 'R$ 350,00', desc: 'Técnica fio a fio ou shadow. Duração: 2h' },
+  { category: 'beleza', title: 'Extensão de Cílios', price: 'R$ 250,00', desc: 'Volume e alongamento. Duração: 3h' },
+  { category: 'beleza', title: 'Micropigmentação Labial', price: 'R$ 350,00', desc: 'Efeito batom ou natural. Duração: 2h' },
+  { category: 'beleza', title: 'SPA Labial', price: 'R$ 100,00', desc: 'Hidratação e esfoliação. Duração: 40 min' },
+  { category: 'beleza', title: 'Depilação Buço', price: 'R$ 15,00', desc: 'Remoção com cera. Duração: 30 min' },
+
+  // --- DERMOPIGMENTAÇÃO ---
+  { category: 'dermopig', title: 'Dermopigmentação de Areola', price: 'R$ 900,00', desc: 'Reconstrução estética. Duração: 1h 30 min' },
+  { category: 'dermopig', title: 'Neutralização Labial', price: 'R$ 350,00', desc: 'Correção de cor (por sessão). Duração: 2h' },
+  { category: 'dermopig', title: 'Rejuvenescimento Labial', price: 'R$ 250,00', desc: 'Tratamento anti-idade. Duração: 1h 30 min' },
 
   // --- OTOMODELAÇÃO ---
-  { category: 'otomodelacao', title: 'Otomodelação Infantil', price: 'R$ 3.000,00', desc: 'Correção de orelhas sem cortes.' },
-  { category: 'otomodelacao', title: 'Otomodelação Adulto', price: 'R$ 2.388,00', desc: 'Valor à vista ou 12x R$ 199,00.' },
+  { category: 'otomodelacao', title: 'Otomodelação Adulto', price: 'R$ 2.388,00', desc: '12x R$ 199,00. Sem cortes. Duração: 3h' },
+  { category: 'otomodelacao', title: 'Otomodelação Infantil', price: 'R$ 3.000,00', desc: 'Correção definitiva. Duração: 3h' },
 ];
 
+// 3. Profissionais
+const professionals = [
+  { name: "Viviane Borges de Oliveira Mendonça", role: "Enfermeira especialista em Estética Avançada" },
+  { name: "Nárgila Souza Dias Mendonça", role: "Lash Design" }
+];
+
+// 4. FAQ e Informações
 const faq = [
-  { question: "Como agendar uma avaliação?", answer: "Você pode agendar diretamente pelo nosso WhatsApp clicando no botão 'Agendar' no topo do site. A avaliação estética tem o valor de R$ 100,00." },
+  { question: "Como funciona a avaliação?", answer: "Nossa avaliação estética tem o valor de R$ 100,00, que é revertido no seu procedimento. Analisamos sua anatomia e indicamos os melhores tratamentos." },
   { question: "Quais as formas de pagamento?", answer: "Aceitamos cartões de crédito, débito e Pix. Parcelamos procedimentos maiores, como a Otomodelação, em até 12x." },
-  { question: "Onde a clínica fica localizada?", answer: "Estamos no Edifício Vogue, em Vicente Pires - Brasília, com estacionamento fácil e acessibilidade." },
+  { question: "Onde a clínica fica localizada?", answer: "Estamos no Edifício Vogue, 4º andar, sala 412, em Vicente Pires - Brasília/DF." },
 ];
 
-// --- COMPONENTES VISUAIS ---
-const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.8, delay, ease: "easeOut" }}
+const hours = [
+  { day: "Segunda a Sexta", time: "08:00 - 22:00" },
+  { day: "Sábado", time: "08:00 - 20:00" },
+  { day: "Domingo", time: "Fechado" }
+];
+
+// --- COMPONENTES VISUAIS AUXILIARES ---
+
+const letterVariant = {
+  hidden: { y: "100%", opacity: 0 },
+  visible: { y: "0%", opacity: 1, transition: { duration: 0.8, ease: [0.33, 1, 0.68, 1] } }
+};
+
+const containerVariant = {
+  visible: { transition: { staggerChildren: 0.05, delayChildren: 0.2 } }
+};
+
+const RevealTitle = ({ text, className }: { text: string, className?: string }) => (
+  <motion.h1 
+    className={`overflow-hidden flex flex-wrap justify-center gap-x-3 ${className}`}
+    variants={containerVariant}
+    initial="hidden"
+    animate="visible"
   >
-    {children}
-  </motion.div>
+    {text.split(" ").map((word, i) => (
+      <span key={i} className="inline-block overflow-hidden pb-4">
+        <motion.span variants={letterVariant} className="inline-block">
+          {word}
+        </motion.span>
+      </span>
+    ))}
+  </motion.h1>
 );
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("facial");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
   
-  // 1. REF PARA O CARROSSEL
   const carouselRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
   
-  const whatsappLink = "https://wa.me/556132425394?text=Ol%C3%A1%2C%20vi%20o%20site%20da%20Reviva%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio!";
+  const yHero = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacityHero = useTransform(scrollY, [0, 300], [1, 0]);
+  
+  const whatsappLink = "https://wa.me/556132425394?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20na%20Reviva!";
 
-  // 2. FUNÇÃO DE SCROLL (Move 350px para o lado)
+  const handleScroll = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      const progress = (scrollLeft / (scrollWidth - clientWidth)) * 100;
+      setScrollProgress(progress);
+    }
+  };
+
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = 350; 
-      carouselRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+      const scrollAmount = 340; 
+      carouselRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="min-h-screen bg-reviva-cream text-reviva-dark font-sans overflow-hidden">
+    <div className="min-h-screen text-reviva-dark font-sans overflow-x-hidden selection:bg-reviva-gold selection:text-white bg-[#FDFCF8]">
       
       {/* --- NAVBAR --- */}
-      <header className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-white/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="#" className="text-2xl font-serif font-bold text-reviva-gold tracking-[0.15em] hover:opacity-80 transition-opacity">
-            REVIVA
+      <motion.header 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="fixed w-full top-0 z-50"
+      >
+        <div className="absolute inset-0 glass-panel border-b border-white/40 shadow-sm"></div>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative z-10">
+          <a href="#" className="relative group">
+            <span className="text-2xl font-serif font-bold text-gold-gradient tracking-[0.2em]">REVIVA</span>
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-reviva-gold transition-all duration-500 group-hover:w-full"></span>
           </a>
 
-          <nav className="hidden md:flex gap-8 items-center font-medium text-sm tracking-widest text-gray-600 uppercase">
-            {["Início", "Sobre", "Procedimentos", "Localização"].map((item) => (
-              <a key={item} href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} className="hover:text-reviva-gold transition-colors relative group">
+          <nav className="hidden md:flex gap-12 items-center font-medium text-[11px] tracking-[0.25em] text-gray-800 uppercase">
+            {["Início", "Sobre", "Menu", "Contato"].map((item) => (
+              <a key={item} href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} className="hover:text-reviva-gold transition-colors duration-300">
                 {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-reviva-gold transition-all group-hover:w-full"></span>
               </a>
             ))}
-            <a 
+            <motion.a 
               href={whatsappLink}
               target="_blank"
-              className="bg-reviva-dark text-white px-8 py-3 rounded-full hover:bg-reviva-gold transition-all duration-300 shadow-lg hover:shadow-reviva-gold/30 transform hover:-translate-y-1 font-bold text-xs"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-reviva-dark text-white px-8 py-3 border border-reviva-dark hover:bg-transparent hover:text-reviva-dark transition-all duration-300 font-bold"
             >
               AGENDAR
-            </a>
+            </motion.a>
           </nav>
 
-          <button className="md:hidden text-reviva-dark p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <button className="md:hidden p-2 text-reviva-dark" onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu size={24} strokeWidth={1.5} />
           </button>
         </div>
+      </motion.header>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "100vh" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-reviva-cream absolute top-full left-0 w-full border-t border-gray-100 overflow-hidden"
-            >
-              <div className="flex flex-col p-8 gap-8 text-center font-serif text-2xl h-full justify-center">
-                {["Início", "Sobre", "Procedimentos", "Localização"].map((item) => (
-                   <a key={item} href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-reviva-gold">{item}</a>
-                ))}
-                <a href={whatsappLink} className="text-reviva-gold font-bold mt-4">Agendar Agora</a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* --- MENU MOBILE --- */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
+            animate={{ opacity: 1, clipPath: "circle(150% at 100% 0%)" }}
+            exit={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 bg-[#FFFCF5] z-[60] flex flex-col items-center justify-center space-y-8"
+          >
+            <button className="absolute top-6 right-6 p-4 rounded-full bg-black/5 hover:bg-reviva-gold/20 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+               <X size={32} className="text-reviva-dark" />
+            </button>
+            {["Início", "Sobre", "Menu", "Contato"].map((item, i) => (
+               <motion.a 
+                 key={item} 
+                 href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
+                 onClick={() => setIsMobileMenuOpen(false)} 
+                 initial={{ y: 50, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 transition={{ delay: 0.1 * i }}
+                 className="font-serif text-5xl text-reviva-dark hover:text-reviva-gold transition-colors italic cursor-pointer"
+               >
+                 {item}
+               </motion.a>
+            ))}
+            <div className="absolute bottom-12 text-center space-y-2 opacity-50 text-sm">
+                <p>Brasília - DF</p>
+                <p>Vicente Pires</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main>
         {/* --- HERO SECTION --- */}
-        <section id="inicio" className="relative pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center min-h-screen">
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <section id="inicio" className="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+          {/* Background Dinâmico */}
+          <div className="absolute inset-0 pointer-events-none">
             <motion.div 
-              animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }} 
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[10%] left-[5%] w-[300px] h-[300px] bg-reviva-gold/10 rounded-full blur-[100px]" 
+              style={{ y: useTransform(scrollY, [0, 1000], [0, -300]) }}
+              className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-reviva-gold/5 rounded-full blur-[100px]" 
             />
             <motion.div 
-              animate={{ y: [0, 30, 0], opacity: [0.3, 0.5, 0.3] }} 
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-[#E8DCC4]/40 rounded-full blur-[120px]" 
+              style={{ y: useTransform(scrollY, [0, 1000], [0, -100]) }}
+              className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-reviva-goldDark/5 rounded-full blur-[120px]" 
             />
           </div>
           
-          <div className="relative z-10 max-w-5xl space-y-8">
+          <motion.div style={{ y: yHero, opacity: opacityHero }} className="relative z-10 max-w-5xl space-y-12">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="inline-flex items-center gap-2 border border-reviva-gold/30 bg-white/40 backdrop-blur-md rounded-full px-6 py-2 shadow-sm"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1.5 }}
+              className="inline-flex items-center gap-3 px-6 py-2 border border-reviva-gold/30 rounded-full bg-white/40 backdrop-blur-md"
             >
-              <Sparkles size={14} className="text-reviva-gold" />
-              <span className="text-xs font-bold tracking-[0.2em] text-reviva-dark uppercase">
-                Estética Avançada em Brasília
+              <Star size={10} className="text-reviva-gold fill-reviva-gold animate-pulse" />
+              <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-600">
+                Naturalmente Você
               </span>
             </motion.div>
             
-            <motion.h1 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium text-reviva-dark leading-[1.1] tracking-tight"
-            >
-              Reviva sua <span className="text-reviva-gold italic font-normal">beleza</span>. <br />
-              Eleve sua essência.
-            </motion.h1>
+            <RevealTitle 
+              text="Reviva sua beleza." 
+              className="text-6xl md:text-9xl font-serif text-reviva-dark leading-[0.9] tracking-tight"
+            />
             
             <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-light"
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 0.8, duration: 1 }}
+              className="text-gray-500 text-lg md:text-2xl max-w-xl mx-auto font-light leading-relaxed italic"
             >
               Transformamos sua autoestima com técnicas modernas e naturais.
             </motion.p>
             
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+              className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8"
             >
               <a 
                 href={whatsappLink}
                 target="_blank"
-                className="group relative px-8 py-4 bg-reviva-dark text-white rounded-full font-bold overflow-hidden shadow-2xl hover:shadow-reviva-gold/50 transition-all"
+                className="group relative px-12 py-5 bg-reviva-dark text-white overflow-hidden transition-all hover:scale-105 shadow-xl hover:shadow-reviva-gold/20"
               >
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-reviva-gold to-reviva-goldDark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative flex items-center gap-2">Agendar Avaliação <ChevronRight size={16} /></span>
-              </a>
-              <a 
-                href="#servicos"
-                className="px-8 py-4 bg-white border border-gray-200 text-reviva-dark rounded-full font-bold hover:border-reviva-gold hover:text-reviva-gold transition-all"
-              >
-                Ver Procedimentos
+                <div className="absolute inset-0 bg-gradient-to-r from-reviva-gold to-reviva-goldDark translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
+                <span className="relative z-10 font-bold text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-3">
+                  Agendar Agora <ArrowUpRight size={16} />
+                </span>
               </a>
             </motion.div>
-          </div>
+          </motion.div>
+
+          <motion.div 
+            style={{ opacity: opacityHero }}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          >
+            <span className="text-[10px] tracking-[0.3em] text-reviva-gold uppercase">Scroll</span>
+            <div className="w-px h-12 bg-gradient-to-b from-reviva-gold to-transparent"></div>
+          </motion.div>
         </section>
 
         {/* --- MARQUEE --- */}
-        <div className="bg-reviva-gold py-4 overflow-hidden whitespace-nowrap relative z-20">
-          <div className="animate-marquee inline-block">
-            {[...Array(10)].map((_, i) => (
-              <span key={i} className="text-white font-serif italic text-2xl mx-8 opacity-80">
-                Estética Avançada • Autoestima • Naturalidade • Bem-estar •
+        <div className="py-8 border-y border-reviva-gold/10 bg-white/50 backdrop-blur-sm overflow-hidden">
+          <motion.div 
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 40, ease: "linear", repeat: Infinity }}
+            className="inline-flex whitespace-nowrap"
+          >
+            {[...Array(6)].map((_, i) => (
+              <span key={i} className="text-4xl md:text-6xl font-serif italic text-reviva-gold/15 mx-12">
+                Autoestima &nbsp; • &nbsp; Bem-estar &nbsp; • &nbsp; Naturalidade &nbsp; • &nbsp; Excelência &nbsp; • &nbsp;
               </span>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        {/* --- SOBRE --- */}
-        <section id="sobre" className="py-32 bg-white relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
-            <FadeIn>
-              <div className="relative">
-                <div className="absolute -top-10 -left-10 w-20 h-20 border-t-2 border-l-2 border-reviva-gold opacity-50"></div>
-                <div className="bg-gray-100 aspect-[3/4] md:aspect-square w-full rounded-[2rem] overflow-hidden shadow-2xl relative">
-                   <div className="absolute inset-0 bg-[#EAEAEA] flex flex-col items-center justify-center text-gray-400">
-                     <span className="text-5xl mb-4">🌿</span>
-                     <span className="font-serif italic">Foto da Clínica</span>
-                   </div>
-                </div>
-                <div className="absolute -bottom-10 -right-10 w-20 h-20 border-b-2 border-r-2 border-reviva-gold opacity-50"></div>
+        {/* --- SOBRE (TEXTO REAL) --- */}
+        <section id="sobre" className="py-40 px-6 relative bg-white">
+          <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+            {/* Imagem Artística */}
+            <div className="relative z-10 group">
+              <div className="absolute inset-0 bg-reviva-gold/10 transform translate-x-4 translate-y-4 -z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"></div>
+              <div className="aspect-[4/5] bg-[#F0F0F0] relative overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 ease-in-out border border-gray-100">
+                 <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
+                   <Sparkles size={48} strokeWidth={1} className="mb-4" />
+                   <span className="font-serif italic text-3xl">Foto Clínica</span>
+                 </div>
               </div>
-            </FadeIn>
+            </div>
             
-            <FadeIn delay={0.2}>
-              <h2 className="text-xs font-bold tracking-[0.2em] text-reviva-gold uppercase mb-4">Sobre Nós</h2>
-              <h3 className="text-4xl md:text-5xl font-serif text-reviva-dark mb-8 leading-tight">
-                Naturalmente Você.
-              </h3>
-              <div className="space-y-6 text-gray-600 text-lg leading-relaxed font-light">
-                <p>
-                  Na <strong>Reviva Saúde e Beleza</strong>, acreditamos que a verdadeira beleza está em realçar o que você tem de melhor — sem exageros, sem excessos, com total respeito à sua essência.
-                </p>
-                <p>
-                  Com um time experiente e apaixonado, combinamos saúde, estética e amor pelo que fazemos. Você estará em mãos seguras, num ambiente onde cada atendimento é feito com carinho, atenção e excelência.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-6 mt-10">
-                <div className="border-l border-reviva-gold/30 pl-4">
-                    <div className="text-3xl font-serif text-reviva-gold">Vicente Pires</div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider">Localização</div>
+            <div className="space-y-10">
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="h-px w-12 bg-reviva-gold"></div>
+                  <span className="text-reviva-gold font-bold text-xs tracking-[0.3em] uppercase">Quem Somos</span>
                 </div>
-                <div className="border-l border-reviva-gold/30 pl-4">
-                    <div className="text-3xl font-serif text-reviva-gold">5.0</div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider">Avaliação</div>
+                <h2 className="text-4xl md:text-6xl font-serif text-reviva-dark leading-tight mb-8">
+                  Cuidado com <br /><span className="italic text-gray-400 font-light">propósito.</span>
+                </h2>
+                <div className="space-y-6 text-gray-600 font-light text-lg leading-relaxed text-justify">
+                  <p>
+                    Na <strong>Reviva Saúde e Beleza</strong>, acreditamos que a verdadeira beleza está em realçar o que você tem de melhor — sem exageros, sem excessos, com total respeito à sua essência.
+                  </p>
+                  <p>
+                    Localizada no coração de Vicente Pires, nossa clínica foi criada para oferecer um espaço acolhedor, moderno e exclusivo. Nossos protocolos são personalizados, unindo técnicas avançadas à sensibilidade de entender o que você realmente precisa.
+                  </p>
                 </div>
-              </div>
-            </FadeIn>
+                
+                {/* Cards Profissionais */}
+                <div className="mt-12 pt-8 border-t border-gray-100">
+                    <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-gray-400 mb-6">Nossos Especialistas</h4>
+                    <div className="grid gap-6">
+                        {professionals.map((prof, idx) => (
+                             <div key={idx} className="flex items-center gap-4 group">
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-reviva-gold group-hover:bg-reviva-gold group-hover:text-white transition-colors">
+                                    <User size={18} />
+                                </div>
+                                <div>
+                                    <p className="font-serif text-lg text-reviva-dark">{prof.name}</p>
+                                    <p className="text-xs text-gray-400 uppercase tracking-wider">{prof.role}</p>
+                                </div>
+                             </div>
+                        ))}
+                    </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* --- MENU DE SERVIÇOS (CARROSSEL) --- */}
-        <section id="servicos" className="py-32 bg-reviva-light/50 relative">
-          <div className="max-w-7xl mx-auto px-6 relative">
-            <div className="text-center mb-12 max-w-3xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-serif mb-6 text-reviva-dark">Menu de Tratamentos</h2>
-              <p className="text-gray-600">Explore nossa seleção completa de procedimentos.</p>
+        {/* --- MENU (LISTA REAL) --- */}
+        <section id="menu" className="py-40 relative bg-[#FDFCF8]">
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-10">
+              <div className="max-w-xl">
+                <h2 className="text-5xl md:text-6xl font-serif text-reviva-dark mb-6">Menu Select</h2>
+                <p className="text-gray-500 font-light text-lg">Procedimentos de alta performance para resultados visíveis.</p>
+              </div>
+              
+              <div className="flex flex-wrap gap-3">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setActiveCategory(cat.id);
+                      if (carouselRef.current) carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                    }}
+                    className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all duration-300 border rounded-none ${
+                      activeCategory === cat.id 
+                        ? "bg-reviva-dark text-white border-reviva-dark" 
+                        : "bg-transparent text-gray-400 border-gray-200 hover:border-reviva-gold hover:text-reviva-gold"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Abas de Categorias */}
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setActiveCategory(cat.id);
-                    // Resetar scroll para o inicio ao trocar
-                    if (carouselRef.current) carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
-                    activeCategory === cat.id 
-                      ? "bg-reviva-gold text-white shadow-lg scale-105" 
-                      : "bg-white text-gray-500 hover:text-reviva-gold hover:shadow-md"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Container do Carrossel com Botões */}
+            {/* Carrossel */}
             <div className="relative group/carousel">
-                {/* Botão Esquerda */}
-                <button 
-                  onClick={() => scrollCarousel('left')}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-reviva-dark hover:bg-reviva-gold hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-                >
-                  <ChevronLeft size={24} />
-                </button>
+                {/* Controles Desktop */}
+                <div className="absolute -top-32 right-0 hidden md:flex gap-4">
+                   <button onClick={() => scrollCarousel('left')} className="p-4 border border-gray-200 hover:border-reviva-gold hover:bg-reviva-gold hover:text-white transition-all duration-300 rounded-full"><ChevronLeft size={20}/></button>
+                   <button onClick={() => scrollCarousel('right')} className="p-4 border border-gray-200 hover:border-reviva-gold hover:bg-reviva-gold hover:text-white transition-all duration-300 rounded-full"><ChevronRight size={20}/></button>
+                </div>
 
-                {/* Carrossel Scrollável */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-6 overflow-x-auto pb-8 pt-4 px-2 snap-x snap-mandatory scrollbar-hide"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  onScroll={handleScroll}
+                  className="flex gap-8 overflow-x-auto pb-16 pt-8 px-4 snap-x snap-mandatory scrollbar-hide"
+                  style={{ scrollbarWidth: 'none' }}
                 >
                   <AnimatePresence mode="popLayout">
                     {services
@@ -353,33 +407,35 @@ export default function Home() {
                       <motion.div 
                         layout
                         key={service.title + index}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3 }}
-                        // Largura fixa para garantir o layout horizontal
-                        className="flex-shrink-0 w-[85vw] sm:w-[350px] snap-center"
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={{ duration: 0.5, delay: index * 0.05 }}
+                        className="flex-shrink-0 w-[85vw] sm:w-[380px] snap-center"
                       >
-                        <div className="h-full bg-white p-6 rounded-3xl shadow-sm border border-transparent hover:border-reviva-gold/30 hover:shadow-xl transition-all duration-500 relative overflow-hidden flex flex-col justify-between">
-                          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Sparkles size={40} className="text-reviva-gold" />
-                          </div>
-                          
-                          <div className="relative z-10">
-                            <h3 className="font-serif text-xl text-reviva-dark hover:text-reviva-gold transition-colors mb-2 line-clamp-2 min-h-[3.5rem]">
+                        <div className="glass-card h-full p-10 hover:-translate-y-3 transition-transform duration-500 flex flex-col justify-between group min-h-[420px] border border-white/60 bg-white/40 hover:bg-white/80 hover:shadow-2xl hover:shadow-gray-200/50">
+                          <div>
+                            <div className="flex justify-between items-start mb-8">
+                              <span className="text-xs font-bold text-gray-300 tracking-widest uppercase border-b border-gray-200 pb-2">0{index + 1}</span>
+                              <div className="p-2 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <Sparkles size={16} className="text-reviva-gold" />
+                              </div>
+                            </div>
+                            <h3 className="font-serif text-2xl text-reviva-dark mb-4 group-hover:text-gold-gradient transition-colors leading-tight min-h-[4rem]">
                               {service.title}
                             </h3>
-                            <p className="text-gray-500 font-light text-sm mb-4 line-clamp-3 min-h-[3.75rem]">
+                            <p className="text-gray-500 font-light text-sm leading-relaxed border-l-2 border-transparent group-hover:border-reviva-gold/30 pl-0 group-hover:pl-4 transition-all duration-500">
                               {service.desc}
                             </p>
                           </div>
                           
-                          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 relative z-10">
-                            <span className="text-reviva-goldDark font-bold text-lg">
-                              {service.price}
-                            </span>
-                            <a href={whatsappLink} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-reviva-gold transition-colors">
-                              Agendar
+                          <div className="mt-10 flex items-end justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Investimento</span>
+                              <span className="font-serif italic text-2xl text-reviva-goldDark">{service.price}</span>
+                            </div>
+                            <a href={whatsappLink} target="_blank" className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-reviva-dark group-hover:bg-reviva-dark group-hover:border-reviva-dark group-hover:text-white transition-all duration-300">
+                              <ArrowUpRight size={20} />
                             </a>
                           </div>
                         </div>
@@ -388,36 +444,35 @@ export default function Home() {
                   </AnimatePresence>
                 </div>
 
-                {/* Botão Direita */}
-                <button 
-                  onClick={() => scrollCarousel('right')}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-reviva-dark hover:bg-reviva-gold hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-                >
-                  <ChevronRight size={24} />
-                </button>
+                {/* Barra de Progresso */}
+                <div className="w-full h-px bg-gray-200 mt-4 relative overflow-hidden max-w-sm mx-auto rounded-full">
+                  <motion.div 
+                    className="absolute top-0 left-0 h-full bg-reviva-gold" 
+                    style={{ width: `${scrollProgress}%` }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                </div>
             </div>
-            
-            {/* Indicador Mobile */}
-            <div className="flex md:hidden justify-center mt-2 text-gray-400 text-xs gap-2 items-center animate-pulse">
-               <ChevronLeft size={14} /> Deslize para ver mais <ChevronRight size={14} />
-            </div>
-
           </div>
         </section>
 
         {/* --- FAQ --- */}
-        <section className="py-24 bg-white">
+        <section className="py-32 bg-white relative">
           <div className="max-w-3xl mx-auto px-6">
-            <h2 className="text-3xl font-serif text-center mb-12">Dúvidas Frequentes</h2>
+            <div className="text-center mb-16">
+               <span className="text-reviva-gold font-bold text-xs tracking-[0.3em] uppercase">Tire suas dúvidas</span>
+               <h2 className="text-4xl font-serif mt-4 text-reviva-dark">Perguntas Frequentes</h2>
+            </div>
+            
             <div className="space-y-4">
               {faq.map((item, i) => (
-                <div key={i} className="border-b border-gray-100 pb-4">
+                <div key={i} className="border-b border-gray-100 group">
                   <button 
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="flex justify-between items-center w-full text-left py-4 focus:outline-none hover:text-reviva-gold transition-colors"
+                    className="flex justify-between items-center w-full text-left py-8 focus:outline-none"
                   >
-                    <span className="font-medium text-lg text-reviva-dark">{item.question}</span>
-                    <ChevronDown className={`text-reviva-gold transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
+                    <span className="font-sans text-lg text-reviva-dark group-hover:text-reviva-gold transition-colors duration-300">{item.question}</span>
+                    <ChevronDown className={`text-gray-300 group-hover:text-reviva-gold transition-all duration-500 ${openFaq === i ? "rotate-180" : ""}`} />
                   </button>
                   <AnimatePresence>
                     {openFaq === i && (
@@ -427,7 +482,7 @@ export default function Home() {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <p className="text-gray-500 pb-4 leading-relaxed font-light">{item.answer}</p>
+                        <p className="text-gray-500 pb-8 font-light leading-relaxed pr-8 pl-4 border-l-2 border-reviva-gold/20">{item.answer}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -437,76 +492,84 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- FOOTER --- */}
-        <footer id="localizacao" className="bg-reviva-dark text-white pt-24 pb-12">
-          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 lg:grid-cols-3 gap-16 mb-16">
-            <div className="space-y-6">
-              <span className="text-3xl font-serif font-bold text-reviva-gold">REVIVA</span>
-              <p className="text-gray-400 font-light leading-relaxed max-w-sm">
-                Sua clínica de estética de confiança em Vicente Pires. Tecnologia, conforto e resultados reais.
+        {/* --- FOOTER COMPLETO --- */}
+        <footer id="contato" className="bg-[#111] text-white/70 py-24 px-6 font-light text-sm relative overflow-hidden">
+          <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 relative z-10">
+            {/* Coluna 1: Marca */}
+            <div className="col-span-1 md:col-span-1 space-y-8">
+              <span className="text-3xl font-serif font-bold text-white tracking-widest block">REVIVA</span>
+              <p className="text-white/60 italic leading-relaxed">
+                "Transformamos sua autoestima com técnicas modernas e naturais."
               </p>
               <div className="flex gap-4">
-                <a href="https://instagram.com/reviva.bsb" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-reviva-gold transition-colors">
-                  <Instagram size={18} />
-                </a>
-                <a href={whatsappLink} target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-reviva-gold transition-colors">
-                  <Phone size={18} />
-                </a>
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-xs uppercase tracking-widest">Aberto agora</span>
               </div>
             </div>
+            
+            {/* Coluna 2: Endereço */}
+            <div className="col-span-1 space-y-6">
+              <h4 className="text-white font-bold tracking-[0.2em] uppercase text-xs">Endereço</h4>
+              <p className="leading-relaxed">
+                Rua 5, Ch. 116, Lt 1e<br/>
+                4° andar, sala 412<br/>
+                Edifício Vogue<br/>
+                Vicente Pires, Brasília/DF<br/>
+                CEP: 72006-180
+              </p>
+              <a href="https://maps.google.com" target="_blank" className="inline-flex items-center gap-2 text-reviva-gold hover:text-white transition-colors text-xs uppercase tracking-widest">
+                 <MapPin size={14} /> Ver no Mapa
+              </a>
+            </div>
 
-            <div className="space-y-6">
-              <h4 className="text-lg font-bold tracking-widest text-reviva-gold uppercase">Contato</h4>
-              <ul className="space-y-4 text-gray-300 font-light">
-                <li className="flex items-start gap-3">
-                  <MapPin className="text-reviva-gold shrink-0 mt-1" size={18} />
-                  <span>Edifício Vogue, 4° andar, Sala 412<br/>Vicente Pires, Brasília/DF</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="text-reviva-gold shrink-0" size={18} />
-                  <span>(61) 3242-5394</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse"></div>
-                  <span>Seg - Sex: 08h às 22h</span>
-                </li>
+            {/* Coluna 3: Horários */}
+            <div className="col-span-1 space-y-6">
+              <h4 className="text-white font-bold tracking-[0.2em] uppercase text-xs">Horário</h4>
+              <ul className="space-y-3">
+                 {hours.map((h, i) => (
+                     <li key={i} className="flex justify-between border-b border-white/5 pb-2">
+                        <span>{h.day}</span>
+                        <span className="text-white">{h.time}</span>
+                     </li>
+                 ))}
               </ul>
             </div>
 
-            <div className="h-[200px] w-full rounded-2xl overflow-hidden bg-gray-800 relative group border border-gray-700">
-               <iframe 
-                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3838.749064789886!2d-48.0336!3d-15.8166!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTXCsDQ5JzAwLjAiUyA0OMKwMDInMDAuMCJX!5e0!3m2!1spt-BR!2sbr!4v1620000000000!5m2!1spt-BR!2sbr3"
-                 width="100%" 
-                 height="100%" 
-                 style={{border:0}} 
-                 allowFullScreen={true} 
-                 loading="lazy" 
-                 className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 grayscale group-hover:grayscale-0"
-               ></iframe>
+            {/* Coluna 4: Contato */}
+            <div className="col-span-1 space-y-6">
+              <h4 className="text-white font-bold tracking-[0.2em] uppercase text-xs">Contato</h4>
+              <p className="text-2xl text-white font-serif hover:text-reviva-gold transition-colors cursor-pointer block">
+                (61) 3242-5394
+              </p>
+              <div className="flex flex-col gap-2 pt-4">
+                <a href="https://instagram.com/reviva.bsb" target="_blank" className="hover:text-reviva-gold transition-colors flex items-center gap-2 group">
+                  <Instagram size={16} /> Instagram
+                </a>
+                <a href={whatsappLink} target="_blank" className="hover:text-reviva-gold transition-colors flex items-center gap-2 group">
+                  <Phone size={16} /> WhatsApp
+                </a>
+              </div>
             </div>
           </div>
           
-          <div className="border-t border-white/10 pt-8 text-center">
-            <p className="text-xs text-gray-500 uppercase tracking-widest">
-              © {new Date().getFullYear()} Reviva Saúde e Beleza. Todos os direitos reservados.
-            </p>
+          <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] tracking-widest opacity-40 uppercase">
+             <p>© {new Date().getFullYear()} REVIVA SAÚDE E BELEZA. TODOS OS DIREITOS RESERVADOS.</p>
+             <p>DESIGNED FOR EXCELLENCE.</p>
           </div>
         </footer>
       </main>
       
-      {/* Botão Flutuante do WhatsApp */}
-      <a 
+      {/* Botão Flutuante Mobile */}
+      <motion.a 
         href={whatsappLink}
         target="_blank"
-        className="fixed bottom-8 right-8 z-50 group"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 2, type: "spring" }}
+        className="md:hidden fixed bottom-6 right-6 z-40 w-14 h-14 bg-reviva-dark text-white rounded-full flex items-center justify-center shadow-2xl shadow-black/30"
       >
-        <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-reviva-dark px-4 py-2 rounded-lg shadow-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          Agende agora
-        </span>
-        <div className="w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 border-4 border-white/20">
-           <Phone size={32} fill="white" className="text-white" />
-        </div>
-      </a>
+         <Phone size={24} />
+      </motion.a>
     </div>
   );
 }
