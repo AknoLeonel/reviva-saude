@@ -307,7 +307,7 @@ export default function Home() {
               <div className="aspect-[4/5] bg-[#F0F0F0] relative overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 ease-in-out border border-gray-100">
                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
                    <Sparkles size={48} strokeWidth={1} className="mb-4" />
-                   <span className="font-serif italic text-3xl">Foto Clínica</span>
+                   <img src="/capa.png" alt="" />
                  </div>
               </div>
             </div>
