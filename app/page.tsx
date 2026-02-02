@@ -498,7 +498,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 relative z-10">
             {/* Coluna 1: Marca */}
             <div className="col-span-1 md:col-span-1 space-y-8">
-              <span className="text-3xl font-serif font-bold text-white tracking-widest block">REVIVA</span>
+              <span className="text-3xl font-serif font-bold text-white tracking-widest block">REVIVA <br></br>BSB</span>
               <p className="text-white/60 italic leading-relaxed">
                 "Transformamos sua autoestima com técnicas modernas e naturais."
               </p>
