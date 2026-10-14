@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reviva Saúde e Beleza
 
-## Getting Started
+Site da clínica de estética e bem-estar em Vicente Pires, DF.
 
-First, run the development server:
+[![Ver site no ar](https://img.shields.io/badge/Ver%20site%20no%20ar-00F5FF?style=for-the-badge&labelColor=0D1117)](https://reviva-saude.vercel.app) [![Portfólio](https://img.shields.io/badge/Portfólio-FF00E4?style=for-the-badge&labelColor=0D1117)](https://aknoleonel.github.io)
+
+## Sobre o projeto
+
+Site da Reviva, uma clínica que trabalha com técnicas de estética naturais e sem exageros. O visual é elegante e calmo, com animações suaves, e todo o caminho leva para o agendamento.
+
+## Destaques
+
+- Hero com animações de entrada e faixa de valores em movimento
+- Seções de apresentação da clínica e dos tratamentos
+- Botão de agendamento sempre por perto
+- Animações com Framer Motion
+
+## Tecnologias
+
+Next.js · React · TypeScript · Tailwind CSS · Framer Motion
+
+## Rodando localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para gerar a versão de produção: `npm run build`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Desenvolvido por [Leonel Paiva](https://github.com/AknoLeonel) · [Instagram](https://www.instagram.com/muvageof) · [Mais projetos](https://aknoleonel.github.io)
